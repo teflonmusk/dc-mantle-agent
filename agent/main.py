@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 from web3 import Web3
 from web3.middleware import ExtraDataToPOAMiddleware
 
-import google.generativeai as genai
+from google import genai
 from pymongo import MongoClient
 
 
@@ -44,8 +44,7 @@ w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 account = w3.eth.account.from_key(PRIVATE_KEY)
 registry = w3.eth.contract(address=Web3.to_checksum_address(REGISTRY_ADDR), abi=ABI)
 
-genai.configure(api_key=GEMINI_API_KEY)
-gemini = genai.GenerativeModel(MODEL_NAME)
+gemini_client = genai.Client(api_key=GEMINI_API_KEY)
 
 mongo = MongoClient(MONGO_URI) if MONGO_URI else None
 db = mongo.dc_signals if mongo else None
@@ -68,7 +67,7 @@ Signal content URI: {content_uri}
 
 def grade(headline: str, content_uri: str) -> tuple[int, dict, str]:
     prompt = RUBRIC_PROMPT.format(headline=headline, content_uri=content_uri)
-    resp = gemini.generate_content(prompt)
+    resp = gemini_client.models.generate_content(model=MODEL_NAME, contents=prompt)
     text = resp.text.strip()
     if text.startswith("```"):
         text = text.strip("`").split("\n", 1)[1]
