@@ -17,3 +17,5 @@ deployments/local/
 deployments/anvil/
 artifacts/
 scripts/node_modules/
+frontend/node_modules/
+frontend/.next/
