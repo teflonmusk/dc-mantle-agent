@@ -1,9 +1,11 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { useAccount, useChainId, useConnect, useDisconnect, useReadContract, useWriteContract, useWatchContractEvent } from 'wagmi';
+import { useState } from 'react';
+import { useAccount, useChainId, useConnect, useDisconnect, useReadContract, useWriteContract } from 'wagmi';
 import { injected } from 'wagmi/connectors';
+import Link from 'next/link';
 import { SIGNAL_REGISTRY, SIGNAL_REGISTRY_ABI } from './lib/contracts';
 import { mantleSepolia } from './lib/chains';
+import { SignalDetail } from './components/SignalDetail';
 
 type Signal = {
   id: bigint;
@@ -22,6 +24,7 @@ export default function Home() {
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
   const registry = SIGNAL_REGISTRY[chainId];
+  const [selectedId, setSelectedId] = useState<bigint | null>(null);
 
   const { data: total } = useReadContract({
     address: registry,
@@ -64,15 +67,20 @@ export default function Home() {
         <h2 className="text-sm font-bold text-muted mb-4 uppercase tracking-wider">
           On-chain Signals ({totalNum})
         </h2>
-        <SignalList registry={registry} total={totalNum} />
+        <SignalList registry={registry} total={totalNum} onSelect={setSelectedId} />
       </section>
 
-      <footer className="mt-16 pt-8 border-t border-border text-xs text-muted">
-        <p>
+      {selectedId !== null && (
+        <SignalDetail id={selectedId} registry={registry} onClose={() => setSelectedId(null)} />
+      )}
+
+      <footer className="mt-16 pt-8 border-t border-border text-xs text-muted flex justify-between">
+        <span>
           Built for the Mantle Turing Test Hackathon 2026 ·{' '}
           <a href="https://github.com/teflonmusk/dc-mantle-agent" className="hover:text-accent">github</a> ·{' '}
           <a href="https://aibtc.news" className="hover:text-accent">DC's prior editorial work</a>
-        </p>
+        </span>
+        <Link href="/identity" className="hover:text-accent">Agent Identities →</Link>
       </footer>
     </main>
   );
@@ -128,18 +136,18 @@ function SubmitForm({ registry, disabled }: { registry: `0x${string}`; disabled:
   );
 }
 
-function SignalList({ registry, total }: { registry: `0x${string}`; total: number }) {
+function SignalList({ registry, total, onSelect }: { registry: `0x${string}`; total: number; onSelect: (id: bigint) => void }) {
   if (total === 0) return <p className="text-xs text-muted">No signals yet. Submit the first one above.</p>;
   // Render most-recent-first, last 10
   const ids = Array.from({ length: Math.min(total, 10) }, (_, i) => BigInt(total - 1 - i));
   return (
     <div className="space-y-2">
-      {ids.map((id) => <SignalRow key={id.toString()} id={id} registry={registry} />)}
+      {ids.map((id) => <SignalRow key={id.toString()} id={id} registry={registry} onSelect={onSelect} />)}
     </div>
   );
 }
 
-function SignalRow({ id, registry }: { id: bigint; registry: `0x${string}` }) {
+function SignalRow({ id, registry, onSelect }: { id: bigint; registry: `0x${string}`; onSelect: (id: bigint) => void }) {
   const { data } = useReadContract({
     address: registry,
     abi: SIGNAL_REGISTRY_ABI,
@@ -152,7 +160,10 @@ function SignalRow({ id, registry }: { id: bigint; registry: `0x${string}` }) {
     `0x${string}`, string, string, bigint, bigint, number, `0x${string}`, boolean
   ];
   return (
-    <div className="border border-border p-4 bg-panel">
+    <button
+      onClick={() => onSelect(id)}
+      className="w-full text-left border border-border p-4 bg-panel hover:border-accent transition-colors"
+    >
       <div className="flex justify-between items-baseline mb-1">
         <span className="text-xs text-muted">#{id.toString()} · {submitter.slice(0, 6)}...{submitter.slice(-4)}</span>
         {graded ? (
@@ -165,6 +176,6 @@ function SignalRow({ id, registry }: { id: bigint; registry: `0x${string}` }) {
       </div>
       <p className="text-sm">{headline}</p>
       <p className="text-xs text-muted mt-1">submitted {new Date(Number(submittedAt) * 1000).toLocaleString()}</p>
-    </div>
+    </button>
   );
 }
