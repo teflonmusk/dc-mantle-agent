@@ -16,19 +16,41 @@ Also targeting:
 
 ## Architecture
 
+```mermaid
+flowchart LR
+  subgraph Sources [Signal sources]
+    GH[GitHub PRs<br/>bitcoin, lnd, stacks-core]
+    MP[mempool.space<br/>fees, backlog, retarget]
+    AR[arXiv RSS<br/>crypto + quantum]
+  end
+
+  subgraph Agent [DC agent — Python]
+    IG[ingest_github.py]
+    IM[ingest_mempool.py]
+    LS[main.py<br/>event listener + Gemini grader]
+  end
+
+  subgraph Mantle [Mantle Network]
+    SR[SignalRegistry<br/>submitSignal + gradeSignal]
+    AI[AgentIdentity<br/>ERC-8004 mint]
+  end
+
+  subgraph FE [Frontend — Next.js + viem + wagmi]
+    HOME[/ feed + submit/]
+    DET[/agent/identity/]
+    ID[/identity hub/]
+  end
+
+  GH --> IG --> SR
+  MP --> IM --> SR
+  AR -.-> IG
+  SR -- SignalSubmitted --> LS -- gradeSignal --> SR
+  SR <--> HOME
+  AI <--> ID
+  AI <--> DET
 ```
-┌──────────────────┐        ┌────────────────────┐         ┌──────────────────┐
-│ Signal Sources   │        │ DC Agent (Python)  │         │ Mantle Network   │
-│  - GitHub PRs    │  poll  │  - dedup (MongoDB) │  call   │  SignalRegistry  │
-│  - mempool.space │ ─────► │  - grade (Gemini)  │ ──────► │  - submitSignal  │
-│  - arXiv RSS     │        │  - publish         │         │  - gradeSignal   │
-│  - SEC EDGAR     │        │                    │         │  AgentIdentity   │
-└──────────────────┘        └────────────────────┘         │  - mint ERC-8004 │
-                                       ▲                   └──────────────────┘
-                                       │                            │
-                                       │ event listener             │ frontend reads
-                                       └────────────────────────────┴────────► Next.js
-```
+
+**Key property:** every submit and every AI score is permanent on Mantle. No editorial revisionism, no off-chain ledger of truth.
 
 ## Stack
 
