@@ -11,6 +11,44 @@ export const AGENT_IDENTITY: Record<number, `0x${string}`> = {
   5000: '0x0000000000000000000000000000000000000000',
 };
 
+export const AGENT_IDENTITY_ABI = [
+  {
+    type: 'function', name: 'mintAgent', stateMutability: 'nonpayable',
+    inputs: [{ name: 'metadataURI', type: 'string' }],
+    outputs: [{ name: 'agentId', type: 'uint256' }],
+  },
+  {
+    type: 'function', name: 'agents', stateMutability: 'view',
+    inputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      { name: 'controller', type: 'address' },
+      { name: 'metadataURI', type: 'string' },
+      { name: 'mintedAt', type: 'uint64' },
+      { name: 'active', type: 'bool' },
+    ],
+  },
+  {
+    type: 'function', name: 'totalAgents', stateMutability: 'view',
+    inputs: [], outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    type: 'function', name: 'updateMetadata', stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'agentId', type: 'uint256' },
+      { name: 'newMetadataURI', type: 'string' },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'event', name: 'AgentMinted',
+    inputs: [
+      { name: 'agentId', type: 'uint256', indexed: true },
+      { name: 'controller', type: 'address', indexed: true },
+      { name: 'metadataURI', type: 'string', indexed: false },
+    ],
+  },
+] as const;
+
 export const SIGNAL_REGISTRY_ABI = [
   {
     type: 'function', name: 'submitSignal', stateMutability: 'nonpayable',
