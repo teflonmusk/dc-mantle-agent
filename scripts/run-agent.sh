@@ -18,5 +18,6 @@ while true; do
   echo "--- $(date -u +%H:%M:%SZ) ingest cycle ---"
   python ingest_github.py || echo "(github ingest failed, continuing)"
   python ingest_mempool.py || echo "(mempool ingest failed, continuing)"
+  python ingest_arxiv.py || echo "(arxiv ingest failed, continuing)"
   sleep 300
 done

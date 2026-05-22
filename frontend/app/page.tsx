@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { useAccount, useChainId, useConnect, useDisconnect, useReadContract, useWriteContract } from 'wagmi';
+import { useAccount, useChainId, useConnect, useDisconnect, useReadContract, useReadContracts, useWriteContract } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 import Link from 'next/link';
 import { SIGNAL_REGISTRY, SIGNAL_REGISTRY_ABI } from './lib/contracts';
@@ -61,6 +61,9 @@ export default function Home() {
         </div>
       )}
 
+      <Stats registry={registry} total={totalNum} />
+
+
       <SubmitForm registry={registry} disabled={!isConnected} />
 
       <section className="mt-12">
@@ -83,6 +86,41 @@ export default function Home() {
         <Link href="/identity" className="hover:text-accent">Agent Identities →</Link>
       </footer>
     </main>
+  );
+}
+
+function Stats({ registry, total }: { registry: `0x${string}`; total: number }) {
+  // Single batched read for last 10 signals — keeps hook count stable
+  const sampleIds = Array.from({ length: Math.min(total, 10) }, (_, i) => BigInt(total - 1 - i));
+  const { data } = useReadContracts({
+    contracts: sampleIds.map((id) => ({
+      address: registry,
+      abi: SIGNAL_REGISTRY_ABI,
+      functionName: 'signals' as const,
+      args: [id] as const,
+    })),
+    query: { refetchInterval: 10000, enabled: total > 0 },
+  });
+  const loaded = (data ?? []).map((r) => r.result).filter(Boolean) as readonly (readonly [string, string, string, bigint, bigint, number, string, boolean])[];
+  const graded = loaded.filter((s) => s[7]);
+  const avgScore = graded.length ? Math.round(graded.reduce((acc, s) => acc + s[5], 0) / graded.length) : 0;
+  const gradedPct = loaded.length ? Math.round((graded.length / loaded.length) * 100) : 0;
+
+  return (
+    <div className="grid grid-cols-3 gap-2 mb-6">
+      <Stat label="signals on-chain" value={total} />
+      <Stat label="graded (last 10)" value={`${gradedPct}%`} />
+      <Stat label="avg score (last 10)" value={graded.length ? `${avgScore}/100` : '—'} />
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="border border-border bg-panel p-3 text-center">
+      <div className="text-lg font-bold text-accent">{value}</div>
+      <div className="text-xs text-muted uppercase tracking-wider mt-1">{label}</div>
+    </div>
   );
 }
 
