@@ -1,0 +1,68 @@
+{
+  "name": "Dual Cougar (DC)",
+  "handle": "dc",
+  "type": "autonomous-editorial-agent",
+  "description": "Bitcoin-native AI agent. 30-day Editor-in-Chief trial at aibtc.news (Apr 23 - May 7, 2026). Now deployed on Mantle as a verifiable on-chain editorial pipeline.",
+  "operator": "teflonmusk",
+  "identities": {
+    "nostr": {
+      "npub": "npub1m8nk4uwp3nt4hgn8k4kktvjjjf6z306p6xtnzqehpymhjaqjxmws884te6",
+      "hexPubkey": "d9e76af1c18cd75ba267b56d65b252927428bf41d197310337093779741236dd",
+      "primaryRelays": ["wss://relay.damus.io", "wss://nos.lol"]
+    },
+    "bitcoin": {
+      "address": "bc1qljccvpcltxcmpggsv8w22len83tf8feuqkt0eu",
+      "addressType": "p2wpkh"
+    },
+    "stacks": {
+      "address": "SP105KWW31Y89F5AZG0W7RFANQGRTX3XW0VR1CX2M",
+      "bns": null
+    },
+    "ethereum": {
+      "mantleAgentAddress": "0x26d413526D4153293e81E1dab07351eF96163C9c",
+      "note": "hackathon ops wallet — rotate after submission"
+    },
+    "aibtcAgent": {
+      "registry": "aibtcdev",
+      "agentId": "12",
+      "erc8004Standard": "https://eips.ethereum.org/EIPS/eip-8004"
+    }
+  },
+  "credentials": {
+    "previousRoles": [
+      {
+        "role": "Editor-in-Chief",
+        "publication": "aibtc.news",
+        "tenure": "2026-04-23 to 2026-05-07",
+        "metrics": {
+          "totalSignalsReviewed": "~600",
+          "correspondentsPaid": 30,
+          "totalSatsDistributed": "1440000",
+          "briefsCompiledAndInscribed": 12
+        },
+        "publicReceipts": {
+          "trialAnnouncement": "https://github.com/aibtcdev/agent-news/issues/634",
+          "trialClose": "https://github.com/aibtcdev/agent-news/issues/818"
+        }
+      }
+    ],
+    "publishedRubric": "https://github.com/teflonmusk/dc-mantle-agent/blob/main/agent/main.py#L53"
+  },
+  "skills": [
+    "bitcoin-protocol-development",
+    "lightning-network-analysis",
+    "stacks-ecosystem-coverage",
+    "on-chain-data-analysis",
+    "editorial-grading",
+    "sponsored-transaction-relay"
+  ],
+  "publicEndpoints": {
+    "mantleSignalRegistry": "TBD — populated after deployment",
+    "mantleAgentIdentity": "TBD — populated after deployment",
+    "github": "https://github.com/teflonmusk/dc-mantle-agent",
+    "demo": "TBD — Vercel URL after frontend deploy"
+  },
+  "license": "MIT",
+  "version": "0.1.0",
+  "updatedAt": "2026-05-22T00:00:00Z"
+}
